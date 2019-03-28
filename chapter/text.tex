@@ -9,24 +9,19 @@ A multi-annual classification of aggregated crop types in Central Asia between 2
 \end{itemize}
 
 Consequently, a crucial bottleneck for a aggregated crop type classification is the lack of mapped training and validation information in most years and regions. Thus, the classification approach is not based on mapped samples. Instead, we assume 
-that aggregated crop types can be characterized so called "pure samples". They represent expert knowledge formalized as $NDVI$ temporal profiles, which are considered as typical for aggregated crop types. The actual classification procedure can be distinguished into three principle steps (Fig. \ref{fig:workflow}):
+that aggregated crop types can be characterized by so called \say{pure samples}. They represent expert knowledge formalized as $NDVI$ temporal profiles, which are considered as typical for aggregated crop types. The actual classification procedure can be distinguished into three principle steps (Fig. \ref{fig:workflow}):
 
 \begin{enumerate}
 \item MODIS pixel polygons are considered as reference units. They are coupled with raster-based MODIS $NDVI$ time series for specific years and regions as well with a preclassified irrigation mask by zonal statistics operations (ZS). 
-\item Every single resulting pixel-specific MODIS $NDVI$ profile is compared with pure sample profiles by a dissimilarity test. The resulting dissimilarity matrix is used for the derivation of crop type-specific samples (SL).
+\item Each single pixel-specific MODIS $NDVI$ profile is compared with pure sample profiles by a dissimilarity test. The resulting dissimilarity matrix is used for the derivation of crop type-specific samples (SL).
 \item The training samples go into a data mining procedure. A statistical model is set up between samples and MODIS $NDVI$ profiles. The model is applied on the total MODIS $NDVI$ data set predicting aggregated crop types.
 \end{enumerate}
 
-There are three options to validate the classification results with independent information. These algorithms  are not part of the classification process chain and are related to the data types \textit{points}, \textit{polygons} and \textit{raster data}.\
+Currently, there are two options to validate the classification results with independent information. These algorithms  are not part of the classification process chain and are related to the data types \textit{points} and \textit{raster data}.\
 
-In the following sections, all relevant functions for classification (Sec. \ref{sec:class}) and validation (Sec. \ref{sec:val}) are described in detail and explained using the example of the Fergana test site (fig. \ref{fig:overview}), for which a classification of 2015 is carried out.\ 
+In the following sections, all relevant functions for classification (Sec. \ref{sec:class}) and validation (Sec. \ref{sec:val}) are described in detail and explained using the example of the Fergana test site (fig. \ref{fig:overview}), for which a classification of 2015 was carried out.\ 
 
-The functions are implemented within the programming environment of \textbf{R} \citep[version 3.5.1; ][]{R2017}. All \textbf{R} srcipts are documented on two GitHub repositories:
-
-\begin{itemize}
-\item \texttt{CAWaClass}\footnote{\url{https://github.com/terrasys/CAWaClass.git}} collects scripts for MODIS classification.
-\item \texttt{CAWaVal}\footnote{\url{https://github.com/terrasys/CAWaVal.git}} offers two options to validate a \texttt{CAWaClass} classification result.
-\end{itemize}
+The functions are implemented within the programming environment of \textbf{R} \citep[version 3.5.1; ][]{R2017}. All \textbf{R} srcipts are documented on two GitHub repositories. While \texttt{CAWaClass}\footnote{\url{https://github.com/terrasys/CAWaClass.git}} collects scripts for MODIS classification, \texttt{CAWaVal}\footnote{\url{https://github.com/terrasys/CAWaVal.git}} offers two options to validate a \texttt{CAWaClass} classification result. The \LaTeX  source report of this report is also stored in GitHub repository\footnote{\url{https://github.com/terrasys/CAWa-classification-scheme.git}}. 
 
 
 \begin{figure}[p]
@@ -78,7 +73,7 @@ The function \texttt{fPuSA()} aims at the comparison of crop type-specific $NDVI
 
 \begin{itemize}
 \item The function \texttt{diss.COR()} \say{computes dissimilarities based on the estimated Pearson's correlation of two given time series} ($d^{COR}$).
-\item The function  \texttt{diss.CORT()} \say{computes an adaptive dissimilarity index between two time series that covers both dissimilarity on raw values and dissimilarity on temporal correlation behaviors} ($d^{COR}$).
+\item The function  \texttt{diss.CORT()} \say{computes an adaptive dissimilarity index between two time series that covers both dissimilarity on values and dissimilarity on temporal correlation behaviors} ($d^{CORT}$).
 \end{itemize}
 
 Both metrics are combined by creating a scaled product $D$ resulting in a value range between 0 and 1 (Eq. \eqref{eq:d} and \eqref{eq:D}). Low $D$ values stand for a high degree of similarity, and high $D$ values for a high degree of dissimilarity.
@@ -143,9 +138,9 @@ For the study region, pure samples have been used, which were generated by \cite
 \end{table}%
 
 \subsubsection{fZonaSt}\label{sec:ZonaSt}
-The function \texttt{fZonaSt()} enables a coupling of arbitrary reference units with both MODIS $NDVI$ raster files for any year or region ([YEAR]-[MONTH]-[DAY]\_ndvi.tif) and a predefined irrigation mask raster file (tab. \ref{tab:fZonaSt}). The actual coupling  procedure is realized by using the RSAGA function   \texttt{rsaga.geoprocessor()}, which allows the execution of SAGA-GIS modules. The zonal statistics algorithm can be found in the library \texttt{shapes\_grid}, where module 2 is related to the corresponding zonal statistics function. As a result, the reference units shape file is parametrized by a irrigation mask value ($IM \in [0,128]$) and DOY-specific $NDVI$ values $(MD[DOY] \in [0,1]$).  The extent of the irrigation mask includes the total area in Central Asia, which should be classified. Here, an irrigation mask threshold of $V.IM=100$  is used for the selection of irrigation areas in the Fergana test site.
+The function \texttt{fZonaSt()} enables a coupling of arbitrary reference units with both MODIS $NDVI$ raster files for any year or region  and a predefined irrigation mask raster file (tab. \ref{tab:fZonaSt}). The actual coupling  procedure is realized by using the RSAGA function   \texttt{rsaga.geoprocessor()}, which allows the execution of SAGA GIS modules. The zonal statistics algorithm can be found in the library \texttt{shapes\_grid}, where module 2 is related to the corresponding zonal statistics function. As a result, the reference units shape file is parametrized by a irrigation mask value ($IM \in [0,128]$) and DOY-specific $NDVI$ values $(MD[DOY] \in [0,1]$).  The extent of the irrigation mask includes the total area in Central Asia, which should be classified. Here, an irrigation mask threshold of $V.IM=100$  is used for the selection of irrigation areas in the Fergana test site.
 
-\begin{table}[pt]
+\begin{table}[t]
   \centering
   \caption{\texttt{fZonaSt}: parameters and results.}
     \begin{tabular7}{m{6.5cm}m{6.5cm}}\toprule
@@ -166,7 +161,7 @@ The function \texttt{fZonaSt()} enables a coupling of arbitrary reference units 
   \label{tab:fZonaSt}%
 \end{table}
 
-\begin{table}[htp]
+\begin{table}[t]
   \centering
   \caption{\texttt{fSample}: parameters and results.}
     \begin{tabular7}{m{6.5cm}m{6.5cm}}
@@ -183,7 +178,7 @@ The function \texttt{fZonaSt()} enables a coupling of arbitrary reference units 
     Q & quantile of $D$ value distribution (Sec. \ref{sec:fPuSA})\\
     \midrule \midrule
      $[W.DIR]/[OUT.DIR]/$ $[MODIS.SHP,YEAR]$\_SAMPLE-NDVI-densityplot\_Q[Q].pdf & density plot of class-  and  pixel-specific  dissimiliarity  values (tab. \ref{tab:fSample-DM} and fig. \ref{fig:fSample-density})\\ \midrule
-     $[W.DIR]/[OUT.DIR]/$ $[MODIS.SHP,YEAR]$\_SAMPLE-NDVI-barplot\_Q[Q].pdf & barplot of class-specific samples\\ \midrule
+     $[W.DIR]/[OUT.DIR]/$ $[MODIS.SHP,YEAR]$\_SAMPLE-NDVI-barplot\_Q[Q].pdf & barplot of class-specific samples (fig. \ref{fig:fSample-barplot})\\ \midrule
     $[W.DIR]/[OUT.DIR]/$ $[MODIS.SHP,YEAR]$\_DM.csv & class-  and  pixel-specific  dissimiliarity  matrix (tab. \ref{tab:fSample-DM})\\ \midrule
     $[W.DIR]/[OUT.DIR]/$ $[MODIS.SHP,YEAR]$.shp & sample shape file with an irrigation mask value ($IM \in [0,100]$) as well as $NDVI$ values for specific years and DOYs ($MD[DOY] \in [0,1]$)\\ \midrule
     $[MODIS.SHP,YEAR]$\_SAMPLE-NDVI\_agg\_Q[Q].csv & aggregated samples of class-specific $NDVI$ values\\
@@ -194,6 +189,28 @@ The function \texttt{fZonaSt()} enables a coupling of arbitrary reference units 
 \end{table}
 
 
+
+% Table generated by Excel2LaTeX from sheet 'Sheet1'
+\begin{table}[t]
+	\centering
+	\caption{\texttt{fSample.R} output: subset of class- and pixel-specific dissimilarity values ($D^{[10,20,30,40,50]}$). ID -- MODIS pixel ID $|$  10 -- summer crop $|$ 20 -- winter crop $|$ 30 -- double crop $|$ 40 -- perennial crop $|$ 50 -- bare land.} \label{tab:fSample-DM}
+	\begin{tabular7}{r|r|r|r|r|r}\toprule
+		ID & $D^{10}$    & $D^{20}$    & $D^{30}$    & $D^{40}$    & $D^{50}$ \\\midrule
+		316   & 0,28  & 0,52  & 0,38  & 0,13  & 0,43 \\
+		317   & 0,24  & 0,50  & 0,35  & 0,14  & 0,38 \\
+		318   & 0,22  & 0,60  & 0,40  & 0,17  & 0,31 \\
+		319   & 0,25  & 0,54  & 0,36  & 0,19  & 0,43 \\
+		1374  & 0,22  & 0,67  & 0,44  & 0,17  & 0,44 \\
+		1375  & 0,21  & 0,63  & 0,38  & 0,17  & 0,38 \\
+		1376  & 0,22  & 0,66  & 0,41  & 0,17  & 0,39 \\
+		2425  & 0,27  & 0,42  & 0,27  & 0,13  & 0,53 \\
+		2426  & 0,26  & 0,56  & 0,33  & 0,15  & 0,42 \\
+		2427  & 0,20  & 0,60  & 0,43  & 0,15  & 0,41 \\
+		$\dots$ & $\dots$ & $\dots$&$\dots$   &$\dots$ & $\dots$\\\bottomrule
+	\end{tabular7}%
+\end{table}%
+
+
 \subsubsection{fSample}\label{sec:fSample}
 The function \texttt{fSample()} aims at the localization of samples for specific years and sites (tab. \ref{tab:fSample}). The procedure is based on the dissimilarity test introduced in section \ref{sec:fPuSA} and can be structured into two steps:
 
@@ -202,30 +219,12 @@ The function \texttt{fSample()} aims at the localization of samples for specific
 \item Calculation of class-specific quantiles of $D$ value distributions and selection of pixels, which fulfill a user-specific quantile-based thresholds (parameter $Q$) and removing duplicates.
 \end{enumerate}
 
-In table \ref{tab:fSample-DM}, a subset of  class- and pixel-specific dissimilarity values ($D^{[10,20,30,40,50]}$) is shown. The corresponding class-specfic density functions are displayed in figure \ref{fig:fSample-density}. The red dashed vertical lines mark the position of user-specific quantiles, which act as dynamic thresholds for sample selection. The selection result can be controlled using figure  \ref{fig:fSample-barplot}, where the sample number and the class-specific sample proportions are displayed. Accordingly, for 2015 a total sample number of 9587 could be selected. The sample class proportions are nearly equal, which is related to the quantile-based selection approach. 
+In table \ref{tab:fSample-DM}, a subset of  class- and pixel-specific dissimilarity values ($D^{[10,20,30,40,50]}$) is shown. The corresponding class-specfic density functions are displayed in figure \ref{fig:fSample-density}. The red dashed vertical lines mark the position of a user-specific quantile (\textit{here:} $Q=1$), which act as dynamic thresholds for sample selection. The selection result can be controlled by using figure  \ref{fig:fSample-barplot}, where the sample number and the class-specific sample proportions are displayed. Accordingly, for 2015 a total sample number of 9587 could be selected. The sample class proportions are nearly equal, which is related to the quantile-based selection approach. 
 
 
 
 
-% Table generated by Excel2LaTeX from sheet 'Sheet1'
-\begin{table}[tp]
-  \centering
-  \caption{\texttt{fSample.R} output: subset of class- and pixel-specific dissimilarity values ($D^{[10,20,30,40,50]}$). ID -- MODIS pixel ID $|$  10 -- summer crop $|$ 20 -- winter crop $|$ 30 -- double crop $|$ 40 -- perennial crop $|$ 50 -- bare land.} \label{tab:fSample-DM}
-    \begin{tabular7}{r|r|r|r|r|r}\toprule
-    ID & $D^{10}$    & $D^{20}$    & $D^{30}$    & $D^{40}$    & $D^{50}$ \\\midrule
-    316   & 0,28  & 0,52  & 0,38  & 0,13  & 0,43 \\
-    317   & 0,24  & 0,50  & 0,35  & 0,14  & 0,38 \\
-    318   & 0,22  & 0,60  & 0,40  & 0,17  & 0,31 \\
-    319   & 0,25  & 0,54  & 0,36  & 0,19  & 0,43 \\
-    1374  & 0,22  & 0,67  & 0,44  & 0,17  & 0,44 \\
-    1375  & 0,21  & 0,63  & 0,38  & 0,17  & 0,38 \\
-    1376  & 0,22  & 0,66  & 0,41  & 0,17  & 0,39 \\
-    2425  & 0,27  & 0,42  & 0,27  & 0,13  & 0,53 \\
-    2426  & 0,26  & 0,56  & 0,33  & 0,15  & 0,42 \\
-    2427  & 0,20  & 0,60  & 0,43  & 0,15  & 0,41 \\
-    $\dots$ & $\dots$ & $\dots$&$\dots$   &$\dots$ & $\dots$\\\bottomrule
-    \end{tabular7}%
-\end{table}%
+
 
 \begin{figure}[p]
     \centering
@@ -236,7 +235,7 @@ In table \ref{tab:fSample-DM}, a subset of  class- and pixel-specific dissimilar
 \subfigure[perennial crop (40)]{\includegraphics[width=0.45\textwidth]{figures/MODIS_fergana2015_SAMPLE-NDVI-densityplot_Q1_Part4.pdf}}
 
 \subfigure[bare land (50)]{\includegraphics[width=0.45\textwidth]{figures/MODIS_fergana2015_SAMPLE-NDVI-densityplot_Q1_Part5.pdf}}
-    \caption{\texttt{fSample} output: Density plots of class-  and  pixel-specific  dissimiliarity  values (see tab. \ref{tab:fSample-DM}).}
+    \caption{\texttt{fSample} output: Density plots of class-  and  pixel-specific  dissimiliarity  values (see tab. \ref{tab:fSample-DM}). The red line indicates the quantile-related treshold of $Q=1$.}
     \label{fig:fSample-density}
 \end{figure}
 
@@ -244,6 +243,10 @@ In table \ref{tab:fSample-DM}, a subset of  class- and pixel-specific dissimilar
 \centering\includegraphics[width=1\textwidth]{figures/MODIS_fergana2015_SAMPLE-NDVI-barplot_Q1.pdf}
 \caption{\texttt{fSample} output: barplot of class-specific samples. 10 -- summer crop $|$ 20 -- winter crop $|$ 30 -- double crop $|$ 40 -- perennial Crop $|$ 50 -- bare land.}\label{fig:fSample-barplot}
 \end{figure}
+
+
+\subsubsection{fPuSaCom}
+Function \texttt{fPuSaCom()} enables the comparison of pure samples (Sec. \ref{sec:fPuSA}) and aggregated samples derived with function \texttt{fSample()} (Sec. \ref{sec:fSample}). As a result,  comparing plots of class-specific $NDVI$ profiles are generated. As shown in figure \ref{fig:fPuSaCom} on the example of class \say{summer crops}, the profiles can be visually assessed regarding their similarity.
 
 \begin{table}[H]
   \centering
@@ -270,38 +273,51 @@ In table \ref{tab:fSample-DM}, a subset of  class- and pixel-specific dissimilar
 \end{table}
 
 
-\begin{figure}[t]
+\begin{figure}[H]
 \centering\includegraphics[width=1\textwidth]{figures/PureSample__MODIS_fergana2015_SAMPLE-NDVI_agg_Q1_Part1.pdf}
 \caption{\texttt{fPuSaCom} output: plot of class-specific $NDVI$ profiles based on both pure samples and aggregated samples derived with \texttt{fSample()} function on the example of land use class 10 (summer crops).}\label{fig:fPuSaCom}
 \end{figure}
 
-\subsubsection{fPuSaCom}
-Function \texttt{fPuSaCom()} enables the comparison of pure samples (Sec. \ref{sec:fPuSA}) and aggregated samples derived with function \texttt{fSample()} (Sec. \ref{sec:fSample}). As a result,  comparing plots of class-specific $NDVI$ profiles are generated. As shown in figure \ref{fig:fPuSaCom} on the example of class \say{summer crops}, the profiles can be visually assessed regarding their similarity.
+
+
+
+
 
 \subsubsection{fModisClass \& fClassAcc}\label{sec:fModisClass}
-The test site- and year-specific classification is realized by executing the function \texttt{fModis}- \texttt{Class()} (tab. \ref{tab:fModisClass}), where some functions of the \textbf{R} package \texttt{caret} are combined \citep{KuhnJohnson2013apm,Kuhn-etal2018}. The  classification process starts with a data partition procedure (here: 75\,\% training data and 25\,\% test data) considering the class proportions (function \texttt{caret::createDataPartition}), which is applied to the sample shape file derived from the  function \texttt{fSample()} (Sec. \ref{sec:fSample}). The option \texttt{caret::upSample} enables to adapt the sample number of the minority class to the same size as the majority class.\
-
+The test site- and year-specific classification is realized by executing the function \texttt{fModis}- \texttt{Class()} (tab. \ref{tab:fModisClass}), where some functions of the \textbf{R} package \texttt{caret} are combined \citep{KuhnJohnson2013apm,Kuhn-etal2018}. The  classification process starts with a data partition procedure (\textit{here:} 75\,\% training data and 25\,\% test data) considering the class proportions (function \texttt{caret::createDataPartition}), which is applied to the sample shape file derived from the  function \texttt{fSample()} (Sec. \ref{sec:fSample}). The option \texttt{caret::upSample} enables to adapt the sample number of the minority class to the same size as the majority class.\
 
 The function \texttt{caret::train} is used for the actual model building. There, the classifier can be set by user (option M.TRAIN)\footnote{\url{https://topepo.github.io/caret/train-models-by-tag.html}}. 
-The classification of the Fergana test site is based on \say{Random Forest} (RF) algorithm, which has been proven as robust classifier for remore sensing applications \citep{BelgiuDragut2016jprs}. RF is  representative of data mining algorithms and stands for a re\-gres\-si\-on- and ensemble-based decision tree algorithm. RF splits the feature space of the explanatory variables until the resulting tree shows the best statistical correlation by minimizing the variance. Based on bootstrapped samples, RF generates a large number of independent trees (ensembles). Two thirds of the samples are used for growing trees (\textit{in-bag} data), and one third are randomly drawn with a replacement for the calculation of error estimates by cross-validation  \citep[\textit{out-of-bag} data; ][]{Breiman2001ml}.\
+The classification of the Fergana test site is based on Random Forest (RF) algorithm, which has been proven as a robust classifier for remore sensing applications \citep{BelgiuDragut2016jprs}. RF is  representative of data mining algorithms and stands for a re\-gres\-si\-on- and ensemble-based decision tree algorithm. RF splits the feature space of the explanatory variables until the resulting tree shows the best statistical correlation by minimizing the variance. Based on bootstrapped samples, RF generates a large number of independent trees (ensembles). Two thirds of the samples are used for growing trees (\textit{in-bag} data), and one third are randomly drawn with a replacement for the calculation of error estimates by cross-validation  \citep[\textit{out-of-bag} data; ][]{Breiman2001ml}.\
 
 
-Figure \ref{fig:fModisClass} illustrates the shape file of classified crop types and their  proportional coverage of areas. The shape file also contains information about the pixel-specific class probability, which expresses the proportion of the trees that voted for each class. Apart from that, following information about the classification accuracy are provided:
-
+Figure \ref{fig:fModisClass} illustrates the shape file of classified crop types and their  proportional coverage of areas. The shape file also contains information about the pixel-specific class probability, which expresses the proportion of the trees that voted for each class. Apart from that, the following information about the classification accuracy are provided:
 
 
 \begin{itemize}
-\item The overall accuracy is based on a repeated 10-fold cross validation of the training data set and can be considered as the internal model accuracy.  
-\item The fitted model is used for the classification of the test data set, for which a confusion matrix and accuracy metrics are calculated (external validation) by activating function \texttt{fClassAcc()}\footnote{\url{https://github.com/saidbleik/Evaluation/blob/master/eval.R}}.
+\item The overall model accuracy is based on a repeated 10-fold cross validation of the training data set.  
+\item The fitted model is used for the classification of the test data set, for which a confusion matrix and accuracy metrics are calculated  by activating the function \texttt{fClassAcc()}\footnote{\url{https://github.com/saidbleik/Evaluation/blob/master/eval.R}}. This kind of validation is considered as internal accuracy assessment. This is due to the fact that the validation information comes from the sampling result and can therefore not be considered as independent.
 The  \textit{F1} score represents the weighted harmonic mean of the metrics \say{precision} and \say{recall} (Eq. \eqref{eq:f-measure}). Both metrics result from the quotient of the \say{number of correctly classified instances per class} with  \say{the number of predictions per class} (Eq. \eqref{eq:precision}; precision) and {the number of instances per class} (Eq. \eqref{eq:recall}; recall), respectively.
 \end{itemize}
 
-The internal accuracy assessment for the MODIS-based classification of the Fergana test site are listed in table  \ref{tab:ModisClassCM} and \ref{tab:ModisClassAM}.
+The internal accuracy assessment results for the MODIS-based classification of the Fergana test site are listed in table  \ref{tab:ModisClassCM} and \ref{tab:ModisClassAM}.
 
 \begin{equation}
 \label{eq:f-measure}
 \text{F1} = 2 * \frac{\text{Precision} * \text{Recall}}{\text{Precision} + \text{Recall}}
 \end{equation}
+
+
+
+\begin{equation}
+\label{eq:precision}
+\text{Precision} = \frac{\text{Diag}}{\text{colsums}}
+\end{equation}
+
+\begin{equation}
+\label{eq:recall}
+   \text{Recall} = \frac{\text{Diag}}{\text{rowsums}} 
+\end{equation}
+
 
 \begin{table}[H]
 	\centering
@@ -321,25 +337,15 @@ The internal accuracy assessment for the MODIS-based classification of the Ferga
 		M.TRAIN & classification method\\\midrule
 		UpSample=TRUE & randomly sample (with replacement) the minority class to be the same size as the majority class\\\midrule\midrule
 		$[W.DIR]/[OUT.DIR]/$ $[SAMPLE.SHP]\_[M.TRAIN]$\_CV.txt &  cross validation result\\\midrule
-		$[W.DIR]/[OUT.DIR]/$ $[SAMPLE.SHP]\_[M.TRAIN]$\_AM.csv & accuracy metrics based on test data set derived from data partition of SAMPLE.SHP\\\midrule
-		$[W.DIR]/[OUT.DIR]/$ $[SAMPLE.SHP]\_[M.TRAIN]$\_CM.csv & confusion matrix based on test data set derived from data partition of SAMPLE.SHP\\\midrule
-		$[W.DIR]/[OUT.DIR]/$ $[ZS.SHP]\_[M.TRAIN]$\_CLASS.shp & shape file with classification result and corresponding class probobility (columns [CLASS] and [CLASS]\_PB) \\\midrule
-		$[W.DIR]/[OUT.DIR]/$ $[ZS.SHP]\_[M.TRAIN]$\_CLASS.pdf & barplot of classified crop types\\
+		$[W.DIR]/[OUT.DIR]/$ $[SAMPLE.SHP]\_[M.TRAIN]$\_AM.csv & accuracy metrics based on test data set derived from data partition of SAMPLE.SHP (tab. \ref{tab:ModisClassCM})\\\midrule
+		$[W.DIR]/[OUT.DIR]/$ $[SAMPLE.SHP]\_[M.TRAIN]$\_CM.csv & confusion matrix based on test data set derived from data partition of SAMPLE.SHP (tab. \ref{tab:ModisClassAM})\\\midrule
+		$[W.DIR]/[OUT.DIR]/$ $[ZS.SHP]\_[M.TRAIN]$\_CLASS.shp & shape file with classification result and corresponding class probobility (columns [CLASS] and [CLASS]\_PB; fig. \ref{fig:fModisClass}a) \\\midrule
+		$[W.DIR]/[OUT.DIR]/$ $[ZS.SHP]\_[M.TRAIN]$\_CLASS.pdf & barplot of classified crop types (fig. \ref{fig:fModisClass}b)\\
 		\bottomrule
 		%\end{tabularx}%
 	\end{tabular7}
 	\label{tab:fModisClass}%
 \end{table}
-
-\begin{equation}
-\label{eq:precision}
-\text{Precision} = \frac{\text{Diag}}{\text{colsums}}
-\end{equation}
-
-\begin{equation}
-\label{eq:recall}
-   \text{Recall} = \frac{\text{Diag}}{\text{rowsums}} 
-\end{equation}
 
 
 \begin{figure}[H]
@@ -377,17 +383,7 @@ The internal accuracy assessment for the MODIS-based classification of the Ferga
 
 
 \subsection{Validation}\label{sec:val}
-Apart from the internal \texttt{CAWaClass} validation (Sec. \ref{sec:fModisClass}), MODIS classification results can also be validated externally by independent information. The script collection \texttt{CAWaVal} (fig. \ref{fig:cawaval-functions}) includes  two options: 
-
-
-
-
-\begin{compactenum}
-\item valdiation based on (point-related) sample shape file (Sec. \ref{sec:fClassCompareP}) and 
-\item validation based on a raster-based classification result (Sec. \ref{sec:fClassCompareR}).
-\end{compactenum}
-
-In both cases, the actual validation procedure is based on the same function \texttt{fClass}-\texttt{Acc()}, which  was already introduced in section \ref{sec:fModisClass}. This is also true for the  script \texttt{fPackage} (Sec: \ref{sec:fPackage}).
+Apart from the internal \texttt{CAWaClass} validation (sec. \ref{sec:fModisClass}), MODIS classification results can also be validated externally by independent information. The script collection \texttt{CAWaVal} (fig. \ref{fig:cawaval-functions}) includes the  two validation options (1.) based on a (point-related) sample shape file (sec. \ref{sec:fClassCompareP}) or (2.) based on a raster-based classification result (Sec. \ref{sec:fClassCompareR}). In both cases, the actual validation procedure uses the same function \texttt{fClass}-\texttt{Acc()}, which  was already introduced in section \ref{sec:fModisClass}. This is also true for the  script \texttt{fPackage} (Sec: \ref{sec:fPackage}).
 
 \begin{figure}[p]
 \centering\includegraphics[width=0.75\textwidth]{figures/CAWaVal_functions.pdf}
@@ -408,9 +404,9 @@ In both cases, the actual validation procedure is based on the same function \te
     CLASS.SHP & MODIS classification result (Sec. \ref{sec:fModisClass})\\\midrule
     POINT.SHP & Point-related validation data set\\\midrule
     RASTER.FORMAT & Raster format of CLASS.RASTER\\\midrule\midrule
-    $[W.DIR]/[OUT.DIR]/$ $[CLASS.SHP]\_\_[POINT.SHP]$\_AM.csv & accuracy metrics based on an overlay of CLASS.SHP and POINT.SHP\\\midrule
-    $[W.DIR]/[OUT.DIR]/$ $[CLASS.SHP]\_\_[POINT.SHP]$\_CM.csv & confusion matrix based on an overlay of CLASS.SHP and POINT.SHP\\\midrule 
-    $[W.DIR]/[OUT.DIR]/$ $[POINT.SHP]$\_BARPLOT.csv &  Class-specific  barplot of  samples mapped 2015 in Fergana test site.\\
+    $[W.DIR]/[OUT.DIR]/$ $[CLASS.SHP]\_\_[POINT.SHP]$\_AM.csv & accuracy metrics based on an overlay of CLASS.SHP and POINT.SHP (tab. \ref{tab:fClassCompareP-AM})\\\midrule
+    $[W.DIR]/[OUT.DIR]/$ $[CLASS.SHP]\_\_[POINT.SHP]$\_CM.csv & confusion matrix based on an overlay of CLASS.SHP and POINT.SHP (tab. \ref{tab:fClassCompareP-CM})\\\midrule 
+    $[W.DIR]/[OUT.DIR]/$ $[POINT.SHP]$\_BARPLOT.pdf &  Class-specific  barplot of  samples mapped 2015 in Fergana test site (fig. \ref{fig:fClassCompareP-barplotP}).\\
     \bottomrule
     %\end{tabularx}%
     \end{tabular7}
@@ -432,8 +428,8 @@ In both cases, the actual validation procedure is based on the same function \te
     CLASS.SHP & MODIS classification result (Sec. \ref{sec:fModisClass})\\\midrule
     CLASS.RASTER & Raster-based classification\\\midrule
     RASTER.FORMAT & Raster format of CLASS.RASTER\\\midrule\midrule
-    $[W.DIR]/[OUT.DIR]/$ $[CLASS.SHP]\_\_[CLASS.RASTER]$\_AM.csv & accuracy metrics based on overlay of CLASS.SHP and CLASS.RASTER\\\midrule
-    $[W.DIR]/[OUT.DIR]/$ $[CLASS.SHP]\_\_[CLASS.RASTER]$\_CM.csv & confusion matrix based on an overlay of CLASS.SHP and CLASS.RASTER\\\bottomrule
+    $[W.DIR]/[OUT.DIR]/$ $[CLASS.SHP]\_\_[CLASS.RASTER]$\_AM.csv & accuracy metrics based on overlay of CLASS.SHP and CLASS.RASTER (tab. \ref{tab:fClassCompareR-AM})\\\midrule
+    $[W.DIR]/[OUT.DIR]/$ $[CLASS.SHP]\_\_[CLASS.RASTER]$\_CM.csv & confusion matrix based on an overlay of CLASS.SHP and CLASS.RASTER (tab. \ref{tab:fClassCompareR-CM})\\\bottomrule
     %\end{tabularx}%
     \end{tabular7}
   \label{tab:fClassCompareR}%
