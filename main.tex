@@ -1,0 +1,43 @@
+\documentclass[11pt,
+			oneside,
+			noonlinecaption,
+			titlepage,
+            bibliography=totoc,
+            listof=totoc]{scrartcl}
+%-----------------------------------------------------------------------
+%PACKAGES            
+%-----------------------------------------------------------------------
+\include{packages}
+
+\newenvironment{tabular9}{%
+  \fontsize{9}{10}\selectfont\tabular
+}{%
+  \endtabular
+}
+
+%layout
+\usepackage{scrpage2}
+\clearscrheadings
+\pagestyle{scrheadings}
+\setheadsepline{.4pt}
+\ohead{\pagemark}
+\ihead{\normalfont{\sffamily\textbf{CAWa classification and valdiation scheme}}}
+\cfoot{\today -- \texttime}
+
+%new tabular environment
+\newenvironment{tabular7}{%
+  \fontsize{10}{11}\selectfont\tabular
+}{%
+  \endtabular
+}
+%-----------------------------------------------------------------------
+%DOCUMENT            
+%-----------------------------------------------------------------------
+\begin{document}
+\tracingall
+\include{chapter/title}
+\include{chapter/text}
+
+\bibliographystyle{apalike2}
+\bibliography{references}
+\end{document}
